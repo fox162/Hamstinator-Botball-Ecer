@@ -19,7 +19,7 @@ def main():
     # 20 Sekunden laufen lassen
     
     try:
-        # Messung fC<r 20 Sekunden durchfC<hren
+        # Messung fuer 20 Sekunden durchfC<hren
         VL = k.analog(0)
         VR = k.analog(1) 
         HL = k.analog(2) 
@@ -47,7 +47,7 @@ def main():
         
             
         #Hebelteil 0 wenn unten 2047 wenn oben
-        #Greifer 1000 Offen 2047 Zu, Drink zu 1900, Dink auf 1500, Becher zu 1600, Becher Offen 1200
+        #Greifer 1000 Offen 2047 Zu, Drink zu 1900, Drink auf 1500, Becher zu 1600, Becher Offen 1200
                 
         
     except KeyboardInterrupt:
