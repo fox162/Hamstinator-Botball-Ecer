@@ -35,7 +35,7 @@ async def eis_off():
     await asyncio.to_thread(k.set_servo_position, 3, 1300)
 
 async def eis_open():
-    await asyncio.to_thread(k.set_servo_position, 3, 1300)
+    await asyncio.to_thread(k.set_servo_position, 3, 1400)
 
 async def eis_close():
     await asyncio.to_thread(k.set_servo_position, 3, 900)
@@ -48,17 +48,7 @@ async def eis_close():
     await asyncio.sleep(0.001)
     await asyncio.to_thread(k.set_servo_position, 3, 520)
     await asyncio.sleep(0.001)
-    await asyncio.to_thread(k.set_servo_position, 3, 420)
-    await asyncio.sleep(0.001)
-    await asyncio.to_thread(k.set_servo_position, 3, 320)
-    await asyncio.sleep(0.001)
-    await asyncio.to_thread(k.set_servo_position, 3, 220)
-    await asyncio.sleep(0.001)
-    await asyncio.to_thread(k.set_servo_position, 3, 120)
-    await asyncio.sleep(0.001)
-    await asyncio.to_thread(k.set_servo_position, 3, 20)
-    await asyncio.sleep(0.001)
-    await asyncio.to_thread(k.set_servo_position, 3, 5)
+    await asyncio.to_thread(k.set_servo_position, 3, 400)
     
 async def eis_hang_down():
     await asyncio.to_thread(k.set_servo_position, 2, 1920)
@@ -144,6 +134,10 @@ async def GreiferZu():
 
 async def GreiferAuf():
     await asyncio.to_thread(k.set_servo_position, Greifer, 1300)
+    
+async def GreiferOpenS(off):
+    await asyncio.to_thread(k.set_servo_position, Greifer, off)
+
 
 
 async def HebelRauf(stufe):
@@ -169,7 +163,7 @@ async def HebelUp(pos):
 async def GoonStreak():
     print("1")
     await GreiferZu()
-    await HebelUp(70)
+    await HebelUp(50)
     await asyncio.sleep(0.3)
     await backl(1)
     await asyncio.sleep(0.5)
@@ -262,7 +256,7 @@ async def Vor(duration):
     end_time = start_time + duration
     while time.time() < end_time:
         k.motor(LEFT, 80)
-        k.motor(RIGHT, 80)
+        k.motor(RIGHT, 83)
         await asyncio.sleep(0.1)  # Non-blocking sleep to prevent blocking
 
 async def LinksUm():
@@ -434,22 +428,37 @@ async def drive_motor_for(duration, left_speed, right_speed):
         k.motor(RIGHT, right_speed)
         await asyncio.sleep(0.1)  # Non-blocking sleep to prevent blocking
     #await stop()
-
+    
+async def prep():
+    await asyncio.gather(
+        asyncio.create_task(await asyncio.to_thread(k.set_servo_position, 2, 800)),
+        asyncio.create_task(await GreiferZu()),
+        asyncio.create_task(await HebelRauf(4))
+    )
+    
+    
+    
 async def main():
-    await GreiferZu()
-    await HebelRauf(4)
+    await asyncio.to_thread(k.set_servo_position, 2, 1500)
     print("main")
     line_startl = k.analog(0)
-    line_blackl = 3900 #line_startl + 200
+    line_blackl = 2500 #line_startl + 200
     line_startr = k.analog(1)
-    line_blackr = 3900 #line_startr
+    line_blackr = 2500 #line_startr
     await drive_motor_for(1, -80, -80)  # Move backward for 1 second
     await drive_motor_for(0.2, 80, 80)  # Move forward for 0.2 seconds
 
     await RechtsUm()  # Turn right
     await drive_motor_for(0.5,-80,-80)
-    await mainD()
-    await drive_motor_for(0.5, 80, 80)
+    
+    #await drive_till_line()
+    #print("a")
+    await Vor(1)
+    print("b")
+    await drive_till_line()
+    print("c")
+    #await mainD()
+    await drive_motor_for(0.6, 80, 80)
     await RechtsUm()  # Turn right again
 
     await HebelRauf(0)
@@ -482,24 +491,26 @@ async def main():
     await asyncio.sleep(1)
 
     await GoonStreak()
+    print("c")
     await HebelRauf(2)
     await GreiferZu()
-    
+    print("c")
     
     # drinks picked
     # next: eis
     
-    
-    await backl(1)
+    print("d")
+    await backl(0.5)
 
-    await linskUm()
-    await drive_motor_for(0.3,80,80)
+    await LinksUm()
+    #await drive_motor_for(0.5,-80,-80)
+    await drive_motor_for(0.6,80,80)
     await stop()
     await eis_grab()
     
-    await drive_motor_for(0.8,80,0)
-    await Vor(0.5)
-    await drive_motor_for(0.5,0,80)
+    await drive_motor_for(0.8,0,80)
+    await Vor(0.6)
+    await drive_motor_for(0.5,80,0)
     await drive_till_line()
    
     await eis_off()
@@ -519,10 +530,10 @@ async def main():
     await HalfRightUm()
     await GreiferAuf()
     
-    await stroke(1)
-    await stroke(2)
-    await stroke(3)
-    await stroke(4) 
+    await Stroke(1)
+    await Stroke(2)
+    await Stroke(3)
+    await Stroke(4) 
     
     # drinks og
     # next: get blue drings
@@ -565,7 +576,30 @@ async def main():
     await stop()
     await eis_grab()
     await drive_till_line()
+    await backl(0.2)
+    await LinksUm()
+    await drive_till_line()
     
+    await eis_off() 
+    
+    await RechtsUm()
+    await HebelRauf(0)
+    await GreiferZu()
+    
+    await HebelRauf(2)
+    await Vor(0.1)
+    await LinksUm()
+    await line_drive_for(1)
+    await Vor(0.3)
+    await LinksUm()
+    await Vor(0.1)
+    await HebelRauf(0)
+    await GreifeAuf()
+    
+    await Stroke(1)
+    await Stroke(2)
+    await Stroke(3)
+    await Stroke(4)
     
     
 
@@ -580,14 +614,16 @@ async def testing():
     
     
     
+    
 async def run():
-    await wait_for_light()  # You can use this function as needed
+    #await wait_for_light()  # You can use this function as needed
     #HebelRauf(4):
     await asyncio.gather(
-        asyncio.create_task(end_when(15)),  # Stop after 10 seconds
-        asyncio.create_task(testing())
+        asyncio.create_task(end_when(115)),  # Stop after 10 seconds
+        asyncio.create_task(main())
         #asyncio.create_task(back(2))  # Run the main function
     )
 
 # Run the event loop
+#asyncio.prep()
 asyncio.run(run())
